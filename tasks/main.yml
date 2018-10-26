@@ -40,7 +40,7 @@
   - name: Copy CA certificate
     copy:
       src: "{{ ca_dir }}/{{ ca_cert_file }}"
-      dest: "{{ cert_output_dir }}/{{ ca_cert_file }}"
+      dest: "{{ cert_output_dir }}/ca_cert.pem"
     when: cert_include_ca_cert
 
   - name: Remove ca files.
