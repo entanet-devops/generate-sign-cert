@@ -1,8 +1,8 @@
 ---
 # tasks file for generate-sign-cert
 - name: Install cfssl.
-  package:
-    name: cfssl
+  apt:
+    name: golang-cfssl
     state: present
 
 - name: Generate signed certs.
