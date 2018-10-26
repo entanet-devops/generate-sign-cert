@@ -1,0 +1,56 @@
+---
+# tasks file for generate-sign-cert
+- name: Install cfssl.
+  package:
+    name: cfssl
+    state: present
+
+- name: Generate signed certs.
+  block:
+  - name: Create temp directory.
+    tempfile:
+      state: directory
+      prefix: cfssl_
+    register: cfssl_temp_dir
+
+  - name: Setup cfssl config
+    template:
+      src: cfssl.json.j2
+      dest: "{{ cfssl_temp_dir.path }}/cfssl.json"
+
+  - name: Setup CSR config
+    template:
+      src: csr.json.j2
+      dest: "{{ cfssl_temp_dir.path }}/csr.json"
+
+  - name: Create certificate output directory.
+    file:
+      path: "{{ cert_output_dir }}"
+      state: directory
+
+  - name: Generate certificate.
+    shell: >
+      cfssl gencert
+      -ca={{ ca_dir }}/{{ ca_cert_file }}
+      -ca-key={{ ca_dir }}/{{ ca_key_file}}
+      -config={{ cfssl_temp_dir.path }}/cfssl.json
+      -hostname="{{ cert_cn }},localhost,127.0.0.1"
+      {{ cfssl_temp_dir.path }}/csr.json | cfssljson -bare {{ cert_output_dir }}/{{ cert_prefix }}
+
+  - name: Copy CA certificate
+    copy:
+      src: "{{ ca_dir }}/{{ ca_cert_file }}"
+      dest: "{{ cert_output_dir }}/{{ ca_cert_file }}"
+    when: cert_include_ca_cert
+
+  - name: Remove ca files.
+    file:
+      path: "{{ ca_dir }}"
+      state: absent
+    when: ca_remove_after_generate 
+
+  always:
+    - name: Remove temp directory.
+      file:
+        path: "{{ cfssl_temp_dir.path }}"
+        state: absent
