@@ -4,7 +4,7 @@ cert_expiry: 87600h
 cert_size: 2048
 cert_algo: rsa
 cert_cn: example.com
-cert_output_dir: /tmp/generated_certs
+cert_output_dir: /tmp/ssl
 cert_prefix: cert
 cert_include_ca_cert: true
 
