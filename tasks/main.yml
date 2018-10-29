@@ -6,6 +6,7 @@
     state: present
 
 - name: Generate signed certs.
+  become: false
   block:
   - name: Create temp directory.
     tempfile:
@@ -44,6 +45,7 @@
     when: cert_include_ca_cert
 
   - name: Remove ca files.
+    become: true
     file:
       path: "{{ ca_dir }}"
       state: absent
